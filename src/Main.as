@@ -21,7 +21,10 @@
 package 
 {
 	import flash.display.Sprite;
+	import flash.events.KeyboardEvent;
+	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
 	
@@ -57,6 +60,9 @@ package
 		///Indicate the height of each cell
 		public var cellH:Number = 0;
 		
+		public var curI:int = 0;
+		public var curJ:int = 0;
+		
 		///Indicates the number of neighboring cells, it is updated in each iteration for each cell
 		public var nCells:uint = 0;
 		
@@ -65,17 +71,50 @@ package
 		///Constant that indicates the size in pixels that all cells occupy horizontally
 		public const sizeW:uint = 800;
 		
+		///Indicates if the game is in pause or no
+		public var pause:Boolean = false;
+		
 		///Stopwatch that indicates how often the screen should be redrawn
 		public var reset:Timer = new Timer(20, 1);
 		
 		/**
-		 * Start of the program, here we call to initialize the vector of the cells and add the EventListener of the timer
+		 * Start of the program, here we call to initialize the vector of the cells and add the EventListeners
 		 */
 		public function Main()
 		{
-			trace("Life Game by Juan Calle");
 			reset.addEventListener(TimerEvent.TIMER_COMPLETE, reDraw);
+			stage.addEventListener(MouseEvent.CLICK, onClick);
+			stage.addEventListener(MouseEvent.RIGHT_CLICK, onClick);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
 			initCells();
+		}
+		
+		/**
+		 * Executed when spa
+		 */
+		private function onStageKeyDown(e:KeyboardEvent):void 
+		{
+			if (e.keyCode==Keyboard.SPACE) 
+			{
+				pause = pause?false:true;
+				if(!pause) 
+				{
+					reDraw(null);
+				}
+			}
+		}
+		
+		/**
+		 * Executed wneh click or right click is pressed and generate o destroy cells
+		 */
+		private function onClick(e:MouseEvent):void 
+		{
+			curI = e.localY / cellH;
+			curJ = e.localX / cellW;
+			Cells[curI][curJ] = _Cells[curI][curJ] = e.type == MouseEvent.CLICK?true:false;
+			graphics.beginFill(e.type == MouseEvent.CLICK?0xeeffee:0x332222);
+			graphics.drawRect(curJ * cellW, curI * cellH, cellW, cellH);
+			graphics.endFill();
 		}
 		
 		/**
@@ -115,7 +154,10 @@ package
 				}
 			}
 			copy(true);
-			reset.start();
+			if (!pause) 
+			{
+				reset.start();
+			}
 		}
 		/**
 		 * Copies the values from the state vector to the backup one and vice versa
@@ -156,13 +198,6 @@ package
 					Cells[i][j] = false;
 				}
 			}
-			
-			//Sample case
-			Cells[10][10] = true;
-			Cells[10][11] = true;
-			Cells[11][11] = true;
-			Cells[11][12] = true;
-			Cells[12][11] = true;
 			
 			graphics.lineStyle(1, 0xffffff);
 			for (var k:int = 0; k < hCells; k++) 
