@@ -14,9 +14,10 @@
     <transparent>false</transparent>
     <visible>true</visible>
     <minimizable>true</minimizable>
-    <maximizable>true</maximizable>
+    <maximizable>false</maximizable>
     <resizable>false</resizable>
     <requestedDisplayResolution>high</requestedDisplayResolution>
+    <renderMode>direct</renderMode>
   </initialWindow>
   <!-- 
 	More options:
