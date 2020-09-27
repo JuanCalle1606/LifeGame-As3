@@ -43,29 +43,45 @@ package
 	 */
 	public class Main extends Sprite 
 	{
+		///Save the state of each cell
 		public var Cells:Vector.<Vector.<Boolean>>;
+		///Save a copy of the state of the cells to be able to perform the calculations correctly
 		public var _Cells:Vector.<Vector.<Boolean>>;
 		
+		///Indicates the number of cells that will be placed vertically
 		public var vCells:uint = 80;
+		///Indicates the number of cells that will be placed horizontally
 		public var hCells:uint = 50;
+		///Indicates the width of each cell
 		public var cellW:Number = 0;
+		///Indicate the height of each cell
 		public var cellH:Number = 0;
 		
+		///Indicates the number of neighboring cells, it is updated in each iteration for each cell
 		public var nCells:uint = 0;
 		
+		///Constant that indicates the size in pixels that all cells occupy vertically
 		public const sizeH:uint = 500;
+		///Constant that indicates the size in pixels that all cells occupy horizontally
 		public const sizeW:uint = 800;
 		
+		///Stopwatch that indicates how often the screen should be redrawn
 		public var reset:Timer = new Timer(20, 1);
 		
+		/**
+		 * Start of the program, here we call to initialize the vector of the cells and add the EventListener of the timer
+		 */
 		public function Main()
 		{
 			trace("Life Game by Juan Calle");
-			reset.addEventListener(TimerEvent.TIMER_COMPLETE, onResetTimerComplete);
+			reset.addEventListener(TimerEvent.TIMER_COMPLETE, reDraw);
 			initCells();
 		}
 		
-		private function onResetTimerComplete(e:TimerEvent):void 
+		/**
+		 * Redraw all cells on the screen, this is done by calculating all neighboring cells and applying the life or death conditions
+		 */
+		private function reDraw(e:TimerEvent):void 
 		{
 			graphics.clear();
 			graphics.lineStyle(1, 0xffffff);
@@ -101,7 +117,9 @@ package
 			copy(true);
 			reset.start();
 		}
-		
+		/**
+		 * Copies the values from the state vector to the backup one and vice versa
+		 */
 		private function copy(revert:Boolean):void 
 		{
 			for (var i:int = 0; i < hCells; i++) 
@@ -120,6 +138,9 @@ package
 			}
 		}
 		
+		/**
+		 * Initialize the status and backup vectors, draw the first screen, and start the timer
+		 */
 		private function initCells():void 
 		{
 			cellW = sizeW / vCells;
@@ -155,6 +176,10 @@ package
 			}
 			reset.start();
 		}
+		/**
+		 * This function does the same job as the modulo operator, except that the actionscript modulo operator is poorly implemented because it does not distinguish between positive and negative to generate the result value.
+		 * That is why this function if the two numbers passed are positive it will use the common and current module of actionsript, but if the first one is negative then what it will do is subtract the module between the first and the second from the second parameter.
+		 */
 		private function mod(num1:Number,num2:Number):int
 		{
 			if (num1 >= 0) 
