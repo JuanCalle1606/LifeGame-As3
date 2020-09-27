@@ -73,6 +73,8 @@ package
 		
 		///Indicates if the game is in pause or no
 		public var pause:Boolean = false;
+		public var isClicked:Boolean = false;
+		public var lastClick:String = "";
 		
 		///Stopwatch that indicates how often the screen should be redrawn
 		public var reset:Timer = new Timer(20, 1);
@@ -85,14 +87,40 @@ package
 			reset.addEventListener(TimerEvent.TIMER_COMPLETE, reDraw);
 			stage.addEventListener(MouseEvent.CLICK, onClick);
 			stage.addEventListener(MouseEvent.RIGHT_CLICK, onClick);
-			stage.addEventListener(KeyboardEvent.KEY_DOWN, onStageKeyDown);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseChange);
+			stage.addEventListener(MouseEvent.RIGHT_MOUSE_DOWN, onMouseChange);
+			stage.addEventListener(MouseEvent.MOUSE_UP, onMouseChange);
+			stage.addEventListener(MouseEvent.RIGHT_MOUSE_UP, onMouseChange);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 			initCells();
+		}
+		
+		private function onMouseChange(e:MouseEvent):void 
+		{
+			if (e.type==MouseEvent.MOUSE_DOWN||e.type==MouseEvent.RIGHT_MOUSE_DOWN) 
+			{
+				isClicked = true;
+			}
+			else if (e.type==MouseEvent.MOUSE_UP||e.type==MouseEvent.RIGHT_MOUSE_UP) 
+			{
+				isClicked = false;
+			}
+			lastClick = e.type;
+		}
+		
+		private function onMouseMove(e:MouseEvent):void 
+		{
+			if (isClicked) 
+			{
+				draw(e, lastClick == MouseEvent.RIGHT_MOUSE_DOWN?false:true);
+			}
 		}
 		
 		/**
 		 * Executed when spa
 		 */
-		private function onStageKeyDown(e:KeyboardEvent):void 
+		private function onKeyDown(e:KeyboardEvent):void 
 		{
 			if (e.keyCode==Keyboard.SPACE) 
 			{
@@ -109,10 +137,15 @@ package
 		 */
 		private function onClick(e:MouseEvent):void 
 		{
+			draw(e, e.type == MouseEvent.RIGHT_CLICK?false:true);
+		}
+		
+		private function draw(e:MouseEvent,isClick:Boolean):void 
+		{
 			curI = e.localY / cellH;
 			curJ = e.localX / cellW;
-			Cells[curI][curJ] = _Cells[curI][curJ] = e.type == MouseEvent.CLICK?true:false;
-			graphics.beginFill(e.type == MouseEvent.CLICK?0xeeffee:0x332222);
+			Cells[curI][curJ] = _Cells[curI][curJ] = isClick?true:false;
+			graphics.beginFill(isClick?0xeeffee:0x332222);
 			graphics.drawRect(curJ * cellW, curI * cellH, cellW, cellH);
 			graphics.endFill();
 		}
@@ -123,7 +156,7 @@ package
 		private function reDraw(e:TimerEvent):void 
 		{
 			graphics.clear();
-			graphics.lineStyle(1, 0xffffff);
+			graphics.lineStyle(1, 0x333333);
 			copy(false);
 			for (var i:int = 0; i < hCells; i++) 
 			{
@@ -199,7 +232,7 @@ package
 				}
 			}
 			
-			graphics.lineStyle(1, 0xffffff);
+			graphics.lineStyle(1, 0x333333);
 			for (var k:int = 0; k < hCells; k++) 
 			{
 				for (var l:int = 0; l < vCells; l++) 
